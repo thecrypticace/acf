@@ -25,6 +25,8 @@ use Illuminate\Support\Collection;
  */
 class FieldFactory
 {
+    private static $types = [];
+
     private function __construct()
     {
     }
@@ -109,6 +111,8 @@ class FieldFactory
                 $field = new FlexibleContent($post);
                 break;
             default:
+                $class = static::$types[$type] ?? null;
+                $field = is_null($class) ? null : new $class($post);
         }
 
         if (is_null($field)) {
@@ -118,5 +122,10 @@ class FieldFactory
         $field->process($name);
 
         return $field;
+    }
+
+    public static function register(string $type, string $class)
+    {
+        static::$types[$type] = $class;
     }
 }
